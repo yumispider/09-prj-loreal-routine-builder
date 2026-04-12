@@ -55,6 +55,7 @@ function locateItemByID(id, productsList) {
   return i;
 }
 
+/* Indicate if a product exists in some specified array */
 function existsInProductList(productID, productList) {
   return locateItemByID(productID, productList) == -1;
 }
@@ -130,12 +131,11 @@ function displayProducts(products) {
     curProduct.addEventListener("click", async (e) => {
       const products = await loadProducts();
       const targetID = e.target.closest(".product-card").id;
-      console.log(targetID);
-
-      const targetIDIndex = locateItemByID(targetID, products);
-      const targetProduct = products[targetIDIndex];
-
-      addToSelectedItems(targetProduct);
+      if (!existsInProductList(targetID, selectedProductsList)) {
+        const targetIDIndex = locateItemByID(targetID, products);
+        const targetProduct = products[targetIDIndex];
+        addToSelectedItems(targetProduct);
+      }
     });
   });
 }
