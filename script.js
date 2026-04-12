@@ -81,16 +81,30 @@ function refreshSelectedItems() {
         <h3>${product.name}</h3>
         <p>${product.brand}</p>
       </div>
+      <div class="remove-button-container">
+          <button class="remove-button" id="${SELECTED_PREFIX}${PRODUCT_ID_PREFIX}button-${product.id}">
+            Remove
+          </button>
+      </div>
     </div>
   `;
   }
 
-  const selectedProductsQuery = document.querySelectorAll(
-    ".selected-product-card",
-  );
+  selectedProductsList.forEach((cur) => {
+    const curProduct = document.getElementById(
+      `${SELECTED_PREFIX}${PRODUCT_ID_PREFIX}button-${cur.id}`,
+    );
 
-  selectedProductsQuery.forEach((cur) => {
-    console.log(cur);
+    curProduct.addEventListener("click", async (e) => {
+      const products = await loadProducts();
+      const targetID = e.target.closest(".product-card").id;
+      console.log(targetID);
+
+      const targetIDIndex = locateItemByID(targetID, products);
+      const targetProduct = products[targetIDIndex];
+
+      addToSelectedItems(targetProduct);
+    });
   });
 }
 
