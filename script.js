@@ -1,15 +1,26 @@
+// Global constants
 const SELECTED_PREFIX = "selected-";
 const PRODUCT_ID_PREFIX = "product-";
 
 /* Get references to DOM elements */
 const categoryFilter = document.getElementById("categoryFilter");
 const productsContainer = document.getElementById("productsContainer");
+const userInput = document.getElementById("userInput");
 const chatForm = document.getElementById("chatForm");
 const chatWindow = document.getElementById("chatWindow");
+const routineButton = document.getElementById("generateRoutine");
 const selectedProducts = document.getElementById("selectedProductsList");
 
 /* Array of products that are selected */
 const selectedProductsList = [];
+
+const messages = [
+  {
+    role: "system",
+    content:
+      "You are a L'Oreal expert that specializes in recommending routines to customers who are interested in trying the brand. If the customer attempts to ask anything other than the routine recommendation based on the items they selected, or what L'Oreal offers, such as skincare, haircare, makeup, fragrance, and other related areas, politely tell them that you do not know. Generate all responses with a conversational, friendly tone. Ensure that the length of your responses are within the tokens allotted, and that it they are not cut-off mid-sentence.",
+  },
+];
 
 /* Show initial placeholder until user selects a category */
 productsContainer.innerHTML = `
@@ -157,6 +168,68 @@ categoryFilter.addEventListener("change", async (e) => {
 /* Chat form submission handler - placeholder for OpenAI integration */
 chatForm.addEventListener("submit", (e) => {
   e.preventDefault();
+});
 
-  chatWindow.innerHTML = "Connect to the OpenAI API for a response!";
+async function fetchRoutine() {
+  chatWindow.style.color = "#000000";
+  chatWindow.textContent = "Thinking...";
+
+  const selected = {
+    selectedProducts: selectedProductsList,
+  };
+  const selectedToString = JSON.stringify(selected);
+  const routinePrompt = `
+    The customer has requested a routine generation from the products they selected using the interface. To do so, analyze the following JSON data: ${selectedToString}
+    Use this JSON data to recommend a routine to the customer. 
+  `;
+
+  messages.push({
+    role: "system",
+    content: routinePrompt,
+  });
+
+  try {
+    const response = await fetch(workerURL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        messages: messages,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error status: ${response.status}`);
+    }
+
+    const responseFromAI = await response.json();
+
+    const responseText =
+      responseFromAI.choices[0].message.content || "Could not form a response.";
+
+    chatWindow.textContent = responseText;
+
+    messages.push({
+      role: "assistant",
+      content: responseText,
+    });
+  } catch (error) {
+    console.error(error);
+    chatWindow.style.color = "#FF003B";
+    chatWindow.textContent =
+      "Sorry, something went wrong. Please try again later. :(";
+  }
+}
+
+/* Handles clicks of the button that generates routines */
+routineButton.addEventListener("click", async (e) => {
+  e.preventDefault();
+
+  if (selectedProductsList.length > 0) {
+    fetchRoutine();
+  } else {
+    chatWindow.innerHTML =
+      "Select some of L'Oreal's products to get a well-organized routine!";
+  }
 });
