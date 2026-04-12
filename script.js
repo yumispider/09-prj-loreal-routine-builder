@@ -51,9 +51,12 @@ function locateItemByID(id, productsList) {
   }
   if (!found) {
     i = -1;
-    console.log(`WARNING: Couldn't locate product by ID ${targetID}`);
   }
   return i;
+}
+
+function existsInProductList(productID, productList) {
+  return locateItemByID(productID, productList) == -1;
 }
 
 /* Unselect a product */
@@ -82,7 +85,7 @@ function refreshSelectedItems() {
         <p>${product.brand}</p>
       </div>
       <div class="remove-button-container">
-          <button class="remove-button" id="${SELECTED_PREFIX}${PRODUCT_ID_PREFIX}button-${product.id}">
+          <button class="remove-button" id="button-${SELECTED_PREFIX}${PRODUCT_ID_PREFIX}${product.id}">
             Remove
           </button>
       </div>
@@ -92,18 +95,16 @@ function refreshSelectedItems() {
 
   selectedProductsList.forEach((cur) => {
     const curProduct = document.getElementById(
-      `${SELECTED_PREFIX}${PRODUCT_ID_PREFIX}button-${cur.id}`,
+      `button-${SELECTED_PREFIX}${PRODUCT_ID_PREFIX}${cur.id}`,
     );
 
-    curProduct.addEventListener("click", async (e) => {
-      const products = await loadProducts();
-      const targetID = e.target.closest(".product-card").id;
-      console.log(targetID);
+    curProduct.addEventListener("click", (e) => {
+      const targetID = e.target.id;
 
-      const targetIDIndex = locateItemByID(targetID, products);
-      const targetProduct = products[targetIDIndex];
+      const targetIDIndex = locateItemByID(targetID, selectedProductsList);
+      const targetProduct = selectedProductsList[targetIDIndex];
 
-      addToSelectedItems(targetProduct);
+      removeFromSelectedItems(targetProduct);
     });
   });
 }
