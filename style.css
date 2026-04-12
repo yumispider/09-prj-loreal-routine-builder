@@ -216,7 +216,7 @@ body {
 }
 
 .product-card:hover {
-  transform: translate(0px, -5px);
+  transform: translate(0px, -2px);
   background-color: #fdf9f9;
 }
 
