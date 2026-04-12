@@ -77,7 +77,7 @@ function refreshSelectedItems() {
     selectedProducts.innerHTML += `
     <div class="selected-product-card" id="${SELECTED_PREFIX}${PRODUCT_ID_PREFIX}${product.id}">
       <img src="${product.image}" alt="${product.name}">
-      <div class="product-info">
+      <div class="selected-product-info">
         <h3>${product.name}</h3>
         <p>${product.brand}</p>
       </div>
