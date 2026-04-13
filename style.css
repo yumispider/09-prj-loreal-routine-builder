@@ -284,11 +284,13 @@ button {
   cursor: pointer;
 }
 
-.remove-button {
+.remove-button,
+.clear-button {
   background-color: #ff003b;
 }
 
-.remove-button:hover {
+.remove-button:hover,
+.clear-button:hover {
   background-color: #ff6085;
   cursor: pointer;
 }
@@ -297,6 +299,8 @@ button {
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
+  margin-top: 15px;
+  padding-right: 15px;
 }
 
 .generate-btn {
