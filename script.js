@@ -11,6 +11,13 @@ const chatWindow = document.getElementById("chatWindow");
 const routineButton = document.getElementById("generateRoutine");
 const selectedProducts = document.getElementById("selectedProductsList");
 
+const productModal = document.getElementById("productModal");
+const modalImage = document.getElementById("modalImage");
+const modalName = document.getElementById("modalName");
+const modalBrand = document.getElementById("modalBrand");
+const modalDescription = document.getElementById("modalDescription");
+const closeModal = document.getElementById("closeModal");
+
 const workerURL = "https://loreal-ai-assistant-worker.yumispider.workers.dev/";
 
 /* Array of products that are selected */
@@ -107,8 +114,6 @@ function addToSelectedItems(selectedProduct) {
   refreshSelectedItems();
 }
 
-document.addEventListener("DOMContentLoaded", loadSelectedProducts);
-
 /* Refresh the products selected in the box */
 function refreshSelectedItems() {
   selectedProducts.innerHTML = "";
@@ -158,12 +163,19 @@ function displayProducts(products) {
         <h3>${product.name}</h3>
         <p>${product.brand}</p>
       </div>
+      <div class="learn-more-button-container">
+        <button class="learn-more-button" id="learn-more-${SELECTED_PREFIX}${PRODUCT_ID_PREFIX}${product.id}">Learn more
+        </button>
+      </div>
     </div>
   `,
     )
     .join("");
   products.forEach((cur) => {
     const curProduct = document.getElementById(`${PRODUCT_ID_PREFIX}${cur.id}`);
+    const learnMoreButton = document.getElementById(
+      `learn-more-${SELECTED_PREFIX}${PRODUCT_ID_PREFIX}${cur.id}`,
+    );
 
     curProduct.addEventListener("click", (e) => {
       const targetID = e.target.closest(".product-card").id;
@@ -175,7 +187,17 @@ function displayProducts(products) {
       }
     });
 
-    curProduct.addEventListener("onmouseover", (e) => {});
+    learnMoreButton.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const productTarget = e.target.closest(".product-card").id;
+      const targetIDIndex = locateItemByID(productTarget, products);
+      const targetProduct = products[targetIDIndex];
+      modalImage.src = targetProduct.image;
+      modalName.textContent = targetProduct.name;
+      modalBrand.textContent = targetProduct.brand;
+      modalDescription.textContent = targetProduct.description;
+      productModal.style.display = "flex";
+    });
   });
 }
 
@@ -321,6 +343,12 @@ async function fetchResponse() {
 
   chatWindow.textContent = "";
 }
+
+document.addEventListener("DOMContentLoaded", loadSelectedProducts);
+
+closeModal.addEventListener("click", () => {
+  productModal.style.display = "none";
+});
 
 /* Chat form submission handler - placeholder for OpenAI integration */
 chatForm.addEventListener("submit", async (e) => {
