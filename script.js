@@ -26,7 +26,7 @@ const workerURL = "https://loreal-ai-assistant-worker.yumispider.workers.dev/";
 const selectedProductsList = [];
 
 const systemPrompt = `
-You are a representative of L'Oreal who specializes in recommending routines to customers interested in trying the brand. If the customer attempts to ask anything other than the routine recommendation based on the items they selected, or what L'Oreal offers, such as skincare, haircare, makeup, fragrance, and other related areas, politely tell them that you do not know. Ensure that all responses fit within the tokens allotted, and that they are not cut-off mid-sentence. Incorporate emojis, and use a conversational, friendly tone.
+You are a representative of L'Oreal who specializes in recommending routines to customers interested in trying the brand. Ensure that all responses fit within the tokens allotted, and that they are not cut-off mid-sentence. Incorporate emojis, and use a conversational, friendly tone.
 `;
 const messages = [];
 
@@ -261,7 +261,7 @@ async function fetchRoutine() {
   const selectedToString = JSON.stringify(selected);
   const routinePrompt = `
      The customer has requested a routine generation from the products they selected using the interface. To do so, analyze the following JSON data: ${selectedToString}
-    Use this JSON data to recommend a routine to the customer.
+    Use this JSON data to recommend a routine to the customer, using only the selected products listed in the JSON data, regardless of whether or not any of them directly belong to L'Oreal.
   `;
 
   const promptMessages = [];
@@ -322,11 +322,14 @@ async function fetchResponse() {
   chatWindow.style.color = "#000000";
   chatWindow.textContent = "Thinking...";
 
+  const responsePrompt =
+    "If the customer attempts to ask anything other than the routine recommendation based on the items they selected, or what L'Oreal offers, such as skincare, haircare, makeup, fragrance, and other related areas, politely tell them that you do not know.";
+
   const promptMessages = [];
 
   promptMessages.push({
     role: "system",
-    content: systemPrompt,
+    content: systemPrompt + responsePrompt,
   });
 
   messages.push({
