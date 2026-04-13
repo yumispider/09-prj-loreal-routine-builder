@@ -165,8 +165,7 @@ function displayProducts(products) {
   products.forEach((cur) => {
     const curProduct = document.getElementById(`${PRODUCT_ID_PREFIX}${cur.id}`);
 
-    curProduct.addEventListener("click", async (e) => {
-      const products = await loadProducts();
+    curProduct.addEventListener("click", (e) => {
       const targetID = e.target.closest(".product-card").id;
       const exists = existsInProductList(targetID, selectedProductsList);
       if (!exists) {
@@ -175,6 +174,8 @@ function displayProducts(products) {
         addToSelectedItems(targetProduct);
       }
     });
+
+    curProduct.addEventListener("onmouseover", (e) => {});
   });
 }
 
