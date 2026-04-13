@@ -162,10 +162,21 @@ function refreshSelectedItems() {
 
       const targetIDIndex = locateItemByID(targetID, selectedProductsList);
       const targetProduct = selectedProductsList[targetIDIndex];
+      const targetProductID = `${PRODUCT_ID_PREFIX}${targetProduct.id}`;
 
       removeFromSelectedItems(targetProduct);
+      updateHighlight(targetProductID);
     });
   });
+}
+
+function updateHighlight(productID) {
+  const targetProduct = document.getElementById(productID);
+  if (existsInProductList(productID, selectedProductsList)) {
+    targetProduct.style.border = "3px solid #e3a535";
+  } else {
+    targetProduct.style.border = "1px solid #cccccc";
+  }
 }
 
 /* Create HTML for displaying product cards */
@@ -193,6 +204,8 @@ function displayProducts(products) {
       `learn-more-${SELECTED_PREFIX}${PRODUCT_ID_PREFIX}${cur.id}`,
     );
 
+    updateHighlight(`${PRODUCT_ID_PREFIX}${cur.id}`);
+
     curProduct.addEventListener("click", (e) => {
       const targetID = e.target.closest(".product-card").id;
       const exists = existsInProductList(targetID, selectedProductsList);
@@ -200,6 +213,7 @@ function displayProducts(products) {
         const targetIDIndex = locateItemByID(targetID, products);
         const targetProduct = products[targetIDIndex];
         addToSelectedItems(targetProduct);
+        updateHighlight(targetID);
       }
     });
 
