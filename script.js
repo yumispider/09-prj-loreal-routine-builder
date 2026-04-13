@@ -11,16 +11,15 @@ const chatWindow = document.getElementById("chatWindow");
 const routineButton = document.getElementById("generateRoutine");
 const selectedProducts = document.getElementById("selectedProductsList");
 
+const workerURL = "https://loreal-ai-assistant-worker.yumispider.workers.dev/";
+
 /* Array of products that are selected */
 const selectedProductsList = [];
 
-const messages = [
-  {
-    role: "system",
-    content:
-      "You are a L'Oreal expert that specializes in recommending routines to customers who are interested in trying the brand. If the customer attempts to ask anything other than the routine recommendation based on the items they selected, or what L'Oreal offers, such as skincare, haircare, makeup, fragrance, and other related areas, politely tell them that you do not know. Generate all responses with a conversational, friendly tone. Ensure that the length of your responses are within the tokens allotted, and that it they are not cut-off mid-sentence.",
-  },
-];
+const systemPrompt = `
+You are a representative of L'Oreal who specializes in recommending routines to customers interested in trying the brand. If the customer attempts to ask anything other than the routine recommendation based on the items they selected, or what L'Oreal offers, such as skincare, haircare, makeup, fragrance, and other related areas, politely tell them that you do not know. Ensure that all responses fit within the tokens allotted, and that they are not cut-off mid-sentence. Incorporate emojis, and use a conversational, friendly tone.
+`;
+const messages = [];
 
 /* Show initial placeholder until user selects a category */
 productsContainer.innerHTML = `
@@ -68,7 +67,9 @@ function locateItemByID(id, productsList) {
 
 /* Indicate if a product exists in some specified array */
 function existsInProductList(productID, productList) {
-  return locateItemByID(productID, productList) == -1;
+  const locateIndex = locateItemByID(productID, productList);
+  const exists = locateIndex !== -1;
+  return exists;
 }
 
 /* Unselect a product */
@@ -142,7 +143,8 @@ function displayProducts(products) {
     curProduct.addEventListener("click", async (e) => {
       const products = await loadProducts();
       const targetID = e.target.closest(".product-card").id;
-      if (!existsInProductList(targetID, selectedProductsList)) {
+      const exists = existsInProductList(targetID, selectedProductsList);
+      if (!exists) {
         const targetIDIndex = locateItemByID(targetID, products);
         const targetProduct = products[targetIDIndex];
         addToSelectedItems(targetProduct);
@@ -165,10 +167,11 @@ categoryFilter.addEventListener("change", async (e) => {
   displayProducts(filteredProducts);
 });
 
-/* Chat form submission handler - placeholder for OpenAI integration */
-chatForm.addEventListener("submit", (e) => {
-  e.preventDefault();
-});
+function addConversationHistory(conversationReceiver) {
+  for (let i = 0; i < messages.length; i++) {
+    conversationReceiver.push(messages[i]);
+  }
+}
 
 async function fetchRoutine() {
   chatWindow.style.color = "#000000";
@@ -180,12 +183,13 @@ async function fetchRoutine() {
   const selectedToString = JSON.stringify(selected);
   const routinePrompt = `
     The customer has requested a routine generation from the products they selected using the interface. To do so, analyze the following JSON data: ${selectedToString}
-    Use this JSON data to recommend a routine to the customer. 
+    Use this JSON data to recommend a routine to the customer.
   `;
 
-  messages.push({
+  const promptMessages = [];
+  promptMessages.push({
     role: "system",
-    content: routinePrompt,
+    content: systemPrompt + routinePrompt,
   });
 
   try {
@@ -195,7 +199,7 @@ async function fetchRoutine() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        messages: messages,
+        messages: promptMessages,
       }),
     });
 
@@ -227,9 +231,73 @@ routineButton.addEventListener("click", async (e) => {
   e.preventDefault();
 
   if (selectedProductsList.length > 0) {
-    fetchRoutine();
+    await fetchRoutine();
   } else {
     chatWindow.innerHTML =
       "Select some of L'Oreal's products to get a well-organized routine!";
   }
+});
+
+async function fetchResponse() {
+  chatWindow.style.color = "#000000";
+  chatWindow.textContent = "Thinking...";
+
+  const chatPrompt = `
+    The customer has asked a question using the chat form. 
+  `;
+
+  const promptMessages = [];
+
+  promptMessages.push({
+    role: "system",
+    content: systemPrompt, //+ chatPrompt,
+  });
+
+  messages.push({
+    role: "user",
+    content: userInput.value,
+  });
+
+  console.log(userInput.value);
+  addConversationHistory(promptMessages);
+
+  try {
+    const response = await fetch(workerURL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        messages: promptMessages,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error status: ${response.status}`);
+    }
+
+    const responseFromAI = await response.json();
+
+    const responseText =
+      responseFromAI.choices[0].message.content || "Could not form a response.";
+
+    chatWindow.textContent = responseText;
+
+    messages.push({
+      role: "assistant",
+      content: responseText,
+    });
+  } catch (error) {
+    console.error(error);
+    chatWindow.style.color = "#FF003B";
+    chatWindow.textContent =
+      "Sorry, something went wrong. Please try again later. :(";
+  }
+}
+
+/* Chat form submission handler - placeholder for OpenAI integration */
+chatForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  await fetchResponse();
 });
