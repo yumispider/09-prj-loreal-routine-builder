@@ -28,6 +28,28 @@ productsContainer.innerHTML = `
   </div>
 `;
 
+/* Functions to stored the selected products into the site's local storage. */
+function saveSelectedProducts() {
+  const selectedProductStorage = {
+    selectedProducts: selectedProductsList,
+  };
+  localStorage.setItem("productList", JSON.stringify(selectedProductStorage));
+}
+
+function loadSelectedProducts() {
+  const savedSelectedProductStorage = localStorage.getItem("productList");
+  if (savedSelectedProductStorage) {
+    const selectedProductStorage = JSON.parse(savedSelectedProductStorage);
+    const storedList = selectedProductStorage.selectedProducts;
+
+    for (let i = 0; i < storedList.length; i++) {
+      selectedProductsList[i] = storedList[i];
+    }
+
+    refreshSelectedItems();
+  }
+}
+
 /* Load product data from JSON file */
 async function loadProducts() {
   const response = await fetch("products.json");
@@ -85,6 +107,8 @@ function addToSelectedItems(selectedProduct) {
   refreshSelectedItems();
 }
 
+document.addEventListener("DOMContentLoaded", loadSelectedProducts);
+
 /* Refresh the products selected in the box */
 function refreshSelectedItems() {
   selectedProducts.innerHTML = "";
@@ -104,6 +128,7 @@ function refreshSelectedItems() {
       </div>
     </div>
   `;
+    saveSelectedProducts();
   }
 
   selectedProductsList.forEach((cur) => {
@@ -250,7 +275,7 @@ async function fetchResponse() {
 
   promptMessages.push({
     role: "system",
-    content: systemPrompt, //+ chatPrompt,
+    content: systemPrompt,
   });
 
   messages.push({
@@ -258,7 +283,6 @@ async function fetchResponse() {
     content: userInput.value,
   });
 
-  console.log(userInput.value);
   addConversationHistory(promptMessages);
 
   try {
@@ -293,6 +317,8 @@ async function fetchResponse() {
     chatWindow.textContent =
       "Sorry, something went wrong. Please try again later. :(";
   }
+
+  chatWindow.textContent = "";
 }
 
 /* Chat form submission handler - placeholder for OpenAI integration */
