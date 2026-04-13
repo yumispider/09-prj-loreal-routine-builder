@@ -260,7 +260,7 @@ async function fetchRoutine() {
   };
   const selectedToString = JSON.stringify(selected);
   const routinePrompt = `
-    The customer has requested a routine generation from the products they selected using the interface. To do so, analyze the following JSON data: ${selectedToString}
+     The customer has requested a routine generation from the products they selected using the interface. To do so, analyze the following JSON data: ${selectedToString}
     Use this JSON data to recommend a routine to the customer.
   `;
 
@@ -269,6 +269,8 @@ async function fetchRoutine() {
     role: "system",
     content: systemPrompt + routinePrompt,
   });
+
+  console.log(promptMessages);
 
   try {
     const response = await fetch(workerURL, {
@@ -320,10 +322,6 @@ async function fetchResponse() {
   chatWindow.style.color = "#000000";
   chatWindow.textContent = "Thinking...";
 
-  const chatPrompt = `
-    The customer has asked a question using the chat form. 
-  `;
-
   const promptMessages = [];
 
   promptMessages.push({
@@ -337,6 +335,7 @@ async function fetchResponse() {
   });
 
   addConversationHistory(promptMessages);
+  userInput.value = "";
 
   try {
     const response = await fetch(workerURL, {
@@ -370,8 +369,6 @@ async function fetchResponse() {
     chatWindow.textContent =
       "Sorry, something went wrong. Please try again later. :(";
   }
-
-  chatWindow.textContent = "";
 }
 
 document.addEventListener("DOMContentLoaded", loadSelectedProducts);
