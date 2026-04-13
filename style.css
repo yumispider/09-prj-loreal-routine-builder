@@ -265,20 +265,22 @@ button {
 }
 
 .remove-button,
-.learn-more-button {
+.learn-more-button,
+.clear-button {
   margin-top: 10px;
   transition: 0.3s;
   color: #eee;
   padding: 10px 10px;
   border: none;
+  border-radius: 8px;
 }
 
 .learn-more-button {
-  background-color: #333;
+  background-color: #000000;
 }
 
 .learn-more-button:hover {
-  background-color: #6d6d6d;
+  background-color: #323232;
   cursor: pointer;
 }
 
@@ -289,6 +291,12 @@ button {
 .remove-button:hover {
   background-color: #ff6085;
   cursor: pointer;
+}
+
+.clear-button-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
 }
 
 .generate-btn {
@@ -346,14 +354,14 @@ button {
   color: #eee;
   padding: 10px 20px;
   border: none;
-  background-color: #333;
+  background-color: #000000;
   font-size: 16px;
   cursor: pointer;
   border-radius: 4px;
 }
 
 .close-button:hover {
-  background-color: #6d6d6d;
+  background-color: #323232;
 }
 
 .modal-image {

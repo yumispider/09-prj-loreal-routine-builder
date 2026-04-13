@@ -10,7 +10,9 @@ const chatForm = document.getElementById("chatForm");
 const chatWindow = document.getElementById("chatWindow");
 const routineButton = document.getElementById("generateRoutine");
 const selectedProducts = document.getElementById("selectedProductsList");
+const clearButton = document.getElementById("clearButton");
 
+/* Modal elements */
 const productModal = document.getElementById("productModal");
 const modalImage = document.getElementById("modalImage");
 const modalName = document.getElementById("modalName");
@@ -101,17 +103,32 @@ function existsInProductList(productID, productList) {
   return exists;
 }
 
+/* Clears all products that are selected and updates the saved list */
+function clearSelection() {
+  while (selectedProductsList.length > 0) {
+    selectedProductsList.pop();
+  }
+}
+
+clearButton.addEventListener("click", (e) => {
+  clearSelection();
+  refreshSelectedItems();
+  saveSelectedProducts();
+});
+
 /* Unselect a product */
 function removeFromSelectedItems(selectedProductID) {
   const removeIndex = locateItemByID(selectedProductID, selectedProductsList);
   selectedProductsList.splice(removeIndex, 1);
   refreshSelectedItems();
+  saveSelectedProducts();
 }
 
 /* Select a product to include in the generated routine */
 function addToSelectedItems(selectedProduct) {
   selectedProductsList.push(selectedProduct);
   refreshSelectedItems();
+  saveSelectedProducts();
 }
 
 /* Refresh the products selected in the box */
@@ -133,7 +150,6 @@ function refreshSelectedItems() {
       </div>
     </div>
   `;
-    saveSelectedProducts();
   }
 
   selectedProductsList.forEach((cur) => {
