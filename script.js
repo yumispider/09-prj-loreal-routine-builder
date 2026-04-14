@@ -119,9 +119,11 @@ clearButton.addEventListener("click", (e) => {
 /* Unselect a product */
 function removeFromSelectedItems(selectedProductID) {
   const removeIndex = locateItemByID(selectedProductID, selectedProductsList);
-  selectedProductsList.splice(removeIndex, 1);
-  refreshSelectedItems();
-  saveSelectedProducts();
+  if (removeIndex !== -1) {
+    selectedProductsList.splice(removeIndex, 1);
+    refreshSelectedItems();
+    saveSelectedProducts();
+  }
 }
 
 /* Select a product to include in the generated routine */
@@ -164,7 +166,7 @@ function refreshSelectedItems() {
       const targetProduct = selectedProductsList[targetIDIndex];
       const targetProductID = `${PRODUCT_ID_PREFIX}${targetProduct.id}`;
 
-      removeFromSelectedItems(targetProduct);
+      removeFromSelectedItems(targetProductID);
       updateHighlight(targetProductID);
     });
   });
